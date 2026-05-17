@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programme Élocution</title>
+
+<!-- PWA Meta Tags -->
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#c9956b">
+<meta name="description" content="Améliore ta diction, ta structure et ta confiance en parlant. Exerce-toi avec reconnaissance vocale.">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Élocution">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #1a1a1a;
+    color: #e8e4df;
+    line-height: 1.65;
+    padding: 24px 16px;
+  }
+
+  .container { max-width: 440px; margin: 0 auto; }
+
+  .main-header { text-align: center; padding: 32px 20px; margin-bottom: 32px; border-bottom: 1px solid #333; }
+  .main-header h1 { font-family: 'DM Serif Display', serif; font-size: 26px; color: #f5f0eb; margin-bottom: 8px; }
+  .main-header .subtitle { font-size: 14px; color: #888; font-style: italic; }
+
+  .nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; position: sticky; top: 0; background: #1a1a1a; padding: 12px 0; z-index: 10; }
+  .nav a { flex: 1; min-width: 65px; text-align: center; padding: 10px 4px; background: #232323; border: 1px solid #333; border-radius: 10px; color: #999; text-decoration: none; font-size: 11px; font-weight: 500; transition: all 0.2s; }
+  .nav a:hover, .nav a:active { background: #2a2a2a; color: #c9956b; border-color: #c9956b; }
+
+  .block { margin-bottom: 40px; background: #232323; border-radius: 16px; border: 1px solid #333; overflow: hidden; }
+  .block-header { padding: 24px 24px 16px; border-bottom: 1px solid #2a2a2a; }
+  .block-number { font-size: 12px; color: #c9956b; text-transform: uppercase; letter-spacing: 3px; font-weight: 600; margin-bottom: 6px; }
+  .block-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: #f5f0eb; margin-bottom: 6px; }
+  .block-why { font-size: 14px; color: #999; font-style: italic; }
+  .block-content { padding: 20px 24px 24px; }
+
+  .exercise { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #2a2a2a; }
+  .exercise:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .exercise-label { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: #1a1a1a; background: #c9956b; padding: 3px 10px; border-radius: 4px; margin-bottom: 10px; }
+  .exercise-label.daily { background: #c9956b; }
+  .exercise-label.weekly { background: #6b9dc9; }
+  .exercise-label.situation { background: #8bc96b; }
+  .exercise h3 { font-size: 16px; font-weight: 600; color: #f5f0eb; margin-bottom: 8px; }
+  .exercise p { font-size: 14px; color: #bbb; margin-bottom: 8px; }
+  .exercise .how { font-size: 14px; color: #d4cfc9; background: #1e1e1e; border-left: 3px solid #c9956b; padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 10px; }
+  .exercise .how strong { color: #f5f0eb; }
+  .exercise .duration { font-size: 12px; color: #888; margin-top: 8px; }
+
+  .virelangue { font-family: 'DM Serif Display', serif; font-size: 16px; color: #c9956b; background: #1e1e1e; padding: 12px 16px; border-radius: 8px; margin: 8px 0; text-align: center; }
+
+  .method-box { background: #1e1e1e; border: 1px solid #333; border-radius: 12px; padding: 20px; margin: 12px 0; }
+  .method-box .step { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+  .method-box .step:last-child { margin-bottom: 0; }
+  .method-box .step-num { width: 28px; height: 28px; min-width: 28px; background: #c9956b; color: #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; }
+  .method-box .step-text { font-size: 14px; color: #d4cfc9; padding-top: 4px; }
+  .method-box .step-text strong { color: #f5f0eb; }
+
+  .example { background: #1e1e1e; border-radius: 10px; padding: 16px; margin: 12px 0; }
+  .example-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+  .example .bad { color: #c96b6b; font-size: 14px; margin-bottom: 6px; text-decoration: line-through; text-decoration-color: #c96b6b44; }
+  .example .good { color: #8bc96b; font-size: 14px; }
+  .example .arrow { color: #666; font-size: 13px; margin: 4px 0; }
+
+  .highlight { color: #c9956b; font-weight: 500; }
+
+  .planning { margin-top: 8px; }
+  .week { margin-bottom: 20px; }
+  .week-title { font-size: 14px; font-weight: 600; color: #c9956b; margin-bottom: 8px; }
+  .week-content { font-size: 14px; color: #bbb; padding-left: 16px; border-left: 2px solid #333; }
+  .week-content p { margin-bottom: 4px; }
+
+  .footer { text-align: center; padding: 24px; margin-top: 20px; border-top: 1px solid #333; }
+  .footer p { font-size: 14px; color: #888; font-style: italic; line-height: 1.6; }
+  .footer strong { color: #c9956b; }
+
+  /* ===== TRAINER ===== */
+  .trainer-wrap { margin-top: 8px; }
+  .tr-diff { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tr-diff button { flex: 1; padding: 9px; background: #1e1e1e; border: 1px solid #333; border-radius: 8px; color: #888; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .tr-diff button.active { color: #c9956b; border-color: #c9956b; background: #252019; }
+
+  .tr-card { background: #1e1e1e; border-radius: 12px; border: 1px solid #2a2a2a; overflow: hidden; margin-bottom: 12px; }
+  .tr-card-head { padding: 14px 18px 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #262626; }
+  .tr-card-lbl { font-size: 11px; color: #c9956b; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
+  .tr-card-cnt { font-size: 12px; color: #555; }
+
+  .tr-phrase { padding: 24px 18px; text-align: center; font-family: 'DM Serif Display', serif; font-size: 18px; color: #f5f0eb; line-height: 1.5; min-height: 70px; display: flex; align-items: center; justify-content: center; }
+
+  .tr-mic { display: flex; flex-direction: column; align-items: center; padding: 4px 18px 22px; }
+  .tr-mic-btn { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #333; background: #161616; color: #888; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+  .tr-mic-btn:hover { border-color: #c9956b; color: #c9956b; }
+  .tr-mic-btn.rec { border-color: #e05555; background: #2a1a1a; animation: trp 1.5s infinite; }
+  .tr-mic-btn.rec svg { color: #e05555; }
+  @keyframes trp { 0%,100%{box-shadow:0 0 0 0 rgba(224,85,85,0.3)} 50%{box-shadow:0 0 0 14px rgba(224,85,85,0)} }
+  .tr-mic-lbl { font-size: 12px; color: #666; margin-top: 10px; min-height: 18px; }
+
+  .tr-spd { padding: 0 18px 16px; display: none; }
+  .tr-spd.v { display: block; }
+  .tr-spd-bar { height: 5px; background: #161616; border-radius: 3px; overflow: hidden; margin-bottom: 5px; }
+  .tr-spd-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+  .tr-spd-lbl { font-size: 11px; color: #777; text-align: center; }
+
+  .tr-res { padding: 0 18px 18px; display: none; }
+  .tr-res.v { display: block; }
+  .tr-res-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .tr-res-lbl { font-size: 11px; color: #777; text-transform: uppercase; letter-spacing: 2px; }
+  .tr-sc { font-family: 'DM Serif Display', serif; font-size: 18px; padding: 2px 10px; border-radius: 6px; }
+  .tr-sc.g { color: #8bc96b; background: #1e2a1e; }
+  .tr-sc.o { color: #c9956b; background: #2a241e; }
+  .tr-sc.b { color: #c96b6b; background: #2a1e1e; }
+  .tr-res-txt { background: #161616; border-radius: 8px; padding: 14px; font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
+  .tr-res-txt .wok { color: #8bc96b; }
+  .tr-res-txt .wko { color: #c96b6b; text-decoration: underline; text-decoration-color: #c96b6b44; }
+  .tr-res-tip { font-size: 12px; color: #999; background: #161616; border-left: 3px solid #c9956b; padding: 8px 12px; border-radius: 0 6px 6px 0; }
+
+  .tr-ctrls { display: flex; gap: 8px; margin-bottom: 12px; }
+  .tr-ctrls button { flex: 1; padding: 12px; background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 10px; color: #bbb; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .tr-ctrls button:hover { background: #262626; color: #f5f0eb; }
+  .tr-ctrls button.pri { background: #c9956b; color: #1a1a1a; border-color: #c9956b; font-weight: 600; }
+  .tr-ctrls button.pri:hover { background: #d4a57a; }
+
+  .tr-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; background: #1e1e1e; border-radius: 10px; padding: 14px; }
+  .tr-st { text-align: center; }
+  .tr-st-v { font-family: 'DM Serif Display', serif; font-size: 20px; color: #f5f0eb; }
+  .tr-st-l { font-size: 10px; color: #777; margin-top: 2px; }
+
+  .tr-err { background: #2a1e1e; border: 1px solid #c96b6b44; border-radius: 8px; padding: 12px; margin-bottom: 12px; font-size: 13px; color: #c96b6b; text-align: center; display: none; }
+  .tr-err.v { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="main-header">
+    <h1>Reprendre la parole</h1>
+    <p class="subtitle">Mémo · Diction · Pratique · Structure · Fluidité</p>
+  </div>
+
+  <nav class="nav">
+    <a href="#memo">Mémo</a>
+    <a href="#diction">Diction</a>
+    <a href="#pratique">Pratique</a>
+    <a href="#structure">Structure</a>
+    <a href="#censure">Censure</a>
+    <a href="#planning">Planning</a>
+  </nav>
+
+  <!-- ==================== MÉMO ==================== -->
+  <section class="block" id="memo" style="border-color:#c9956b44;">
+    <div class="block-header">
+      <div class="block-number">Mémo</div>
+      <div class="block-title">Avant de parler</div>
+      <div class="block-why">Relis ça avant chaque appel ou rencontre.</div>
+    </div>
+    <div class="block-content">
+      <div class="exercise">
+        <div class="exercise-label situation">Règle 1</div>
+        <h3>Tu parles depuis 30 secondes sans pause ?</h3>
+        <div class="how"><strong>Stop. Pose une question.</strong> N'importe laquelle. "Et toi ?" suffit.</div>
+      </div>
+      <div class="exercise">
+        <div class="exercise-label situation">Règle 2</div>
+        <h3>L'autre te raconte un truc ?</h3>
+        <div class="how"><strong>Ne rebondis pas avec ton histoire.</strong> Demande : "Ça t'a fait quoi ?" ou "T'as fait quoi du coup ?"</div>
+      </div>
+      <div class="exercise">
+        <div class="exercise-label situation">Règle 3</div>
+        <h3>Tu te censures, tu cherches tes mots ?</h3>
+        <div class="how"><strong>Dis-le simplement.</strong> "Attends je cherche mon idée" — c'est OK. Le silence fait pas peur aux gens, il fait peur qu'à toi.</div>
+      </div>
+      <div class="exercise">
+        <div class="exercise-label situation">Règle 4</div>
+        <h3>Tu vas oublier tout ça au bout de 3 minutes.</h3>
+        <div class="how"><strong>C'est normal.</strong> Le but c'est pas d'être parfait. C'est de le faire une fois sur cinq. Puis deux. Puis trois.</div>
+      </div>
+      <div style="text-align:center;padding:16px 0 4px;font-size:14px;color:#888;font-style:italic;">
+        Tu es <span class="highlight">agréable</span>. On te l'a dit. Le reste, ça se travaille.
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== DICTION ==================== -->
+  <section class="block" id="diction">
+    <div class="block-header">
+      <div class="block-number">Bloc 1</div>
+      <div class="block-title">Diction</div>
+      <div class="block-why">Articuler clairement, poser sa voix, ralentir.</div>
+    </div>
+    <div class="block-content">
+      <div class="exercise">
+        <div class="exercise-label daily">Tous les jours</div>
+        <h3>Les virelangues</h3>
+        <p>Choisis-en un. Dis-le 5 fois de suite, lentement d'abord, puis de plus en plus vite. L'objectif c'est la clarté, pas la vitesse.</p>
+        <div class="virelangue">Les chaussettes de l'archiduchesse sont-elles sèches, archi-sèches ?</div>
+        <div class="virelangue">Un chasseur sachant chasser sait chasser sans son chien de chasse.</div>
+        <div class="virelangue">Didon dîna dit-on du dos d'un dodu dindon.</div>
+        <div class="virelangue">Panier piano panier piano panier piano.</div>
+        <div class="how"><strong>Astuce :</strong> Exagère les mouvements de la bouche. Ouvre grand. Tu dois sentir les muscles de ta mâchoire travailler. Ça doit être inconfortable au début.</div>
+        <div class="duration">⏱ 5 minutes</div>
+      </div>
+      <div class="exercise">
+        <div class="exercise-label daily">Tous les jours</div>
+        <h3>Lecture à voix haute</h3>
+        <p>Prends n'importe quoi — un article, un livre, même l'étiquette d'un produit. Lis à voix haute pendant 5 minutes.</p>
+        <div class="how"><strong>La règle :</strong> parle comme si quelqu'un t'écoutait à 5 mètres. Plus fort que ta voix naturelle. Plus lent que ton débit naturel. <strong>Articule chaque fin de mot.</strong> C'est là que la plupart des gens mâchent.</div>
+        <div class="duration">⏱ 5 minutes</div>
+      </div>
+      <div class="exercise">
+        <div class="exercise-label weekly">1 fois par semaine</div>
+        <h3>Enregistre-toi</h3>
+        <p>Prends ton téléphone, ouvre le dictaphone, et raconte un truc pendant 2 minutes. N'importe quoi : ta journée, un film, un souvenir.</p>
+        <div class="how"><strong>Après, réécoute.</strong> C'est désagréable. Tout le monde déteste sa voix enregistrée. Fais-le quand même. Note ce qui te gêne : tu manges les fins de phrases ? Tu dis "euh" toutes les 3 secondes ? Tu parles trop vite ? C'est ton diagnostic personnel.</div>
+        <div class="duration">⏱ 5 minutes (2 min enregistrement + 3 min écoute)</div>
+      </div>
+      <div class="exercise">
+        <div class="exercise-label daily">Tous les jours</div>
+        <h3>La respiration avant de parler</h3>
+        <p>Avant chaque conversation importante (appel, rencontre) :</p>
+        <div class="method-box">
+          <div class="step"><div class="step-num">1</div><div class="step-text">Inspire par le nez, 4 secondes</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-text">Bloque, 4 secondes</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-text">Expire par la bouche, 6 secondes</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-text">Répète 3 fois</div></div>
+        </div>
+        <p>Ça calme le système nerveux, ça ralentit le débit, et ça pose la voix. 1 minute. Pas d'excuse.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PRATIQUE MICRO ==================== -->
+  <section class="block" id="pratique">
+    <div class="block-header">
+      <div class="block-number">Pratique</div>
+      <div class="block-title">Entraînement micro</div>
+      <div class="block-why">Lis à voix haute. Le micro écoute et compare.</div>
+    </div>
+    <div class="block-content">
+      <div class="trainer-wrap">
+        <div class="tr-diff">
+          <button class="active" onclick="setDiff('easy',this)">Facile</button>
+          <button onclick="setDiff('medium',this)">Moyen</button>
+          <button onclick="setDiff('hard',this)">Difficile</button>
+        </div>
+        <div class="tr-err" id="trErr"></div>
+        <div class="tr-card">
+          <div class="tr-card-head">
+            <span class="tr-card-lbl" id="trCat">Virelangue</span>
+            <span class="tr-card-cnt" id="trCnt">1 / 8</span>
+          </div>
+          <div class="tr-phrase" id="trPhr"></div>
+          <div class="tr-mic">
+            <button class="tr-mic-btn" id="trMic" onclick="trToggle()">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+            </button>
+            <div class="tr-mic-lbl" id="trMicLbl">Appuie pour commencer</div>
+          </div>
+          <div class="tr-spd" id="trSpd">
+            <div class="tr-spd-bar"><div class="tr-spd-fill" id="trSpdF"></div></div>
+            <div class="tr-spd-lbl" id="trSpdL"></div>
+          </div>
+          <div class="tr-res" id="trRes">
+            <div class="tr-res-head">
+              <span class="tr-res-lbl">Ce que j'ai entendu</span>
+              <span class="tr-sc" id="trSc"></span>
+            </div>
+            <div class="tr-res-txt" id="trResTxt"></div>
+            <div class="tr-res-tip" id="trResTip"></div>
+          </div>
+        </div>
+        <div class="tr-ctrls">
+          <button onclick="trRetry()">Recommencer</button>
+          <button class="pri" onclick="trNext()">Suivant →</button>
+        </div>
+        <div class="tr-stats">
+          <div class="tr-st"><div class="tr-st-v" id="tsN">0</div><div class="tr-st-l">essais</div></div>
+          <div class="tr-st"><div class="tr-st-v" id="tsA">—</div><div class="tr-st-l">score moyen</div></div>
+          <div class="tr-st"><div class="tr-st-v" id="tsB">—</div><div class="tr-st-l">meilleur</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== STRUCTURE ==================== -->
+  <section class="block" id="structure">
+    <div class="block-header">
+      <div class="block-number">Bloc 2</div>
+      <div class="block-title">Structure</div>
+      <div class="block-why">Arrêter de se perdre dans les détails. Dire l'essentiel d'abord.</div>
+    </div>
+    <div class="block-content">
+      <div class="exercise">
+        <div class="exercise-label situation">Méthode</div>
+        <h3>La règle du titre</h3>
+        <p>Avant de raconter quoi que ce soit, donne le <span class="highlight">titre</span> d'abord. Comme un journal. Le gros titre, puis les détails.</p>
+        <div class="example">
+          <div class="example-label">Exemple</div>
+          <div class="bad">"Alors en fait hier j'étais au Vieux-Port et il faisait super beau et y'avait un mec qui vendait des trucs et en fait figure-toi que j'ai retrouvé un pote que j'avais pas vu depuis 3 ans…"</div>
+          <div class="arrow">↓ devient ↓</div>
+          <div class="good">"J'ai retrouvé un pote par hasard hier, ça faisait 3 ans. On était au Vieux-Port, il vendait des trucs sur le marché."</div>
+        </div>
+        <div class="how"><strong>Le truc :</strong> demande-toi "c'est quoi l'info principale ?" avant d'ouvrir la bouche. Dis ÇA d'abord. Les détails viennent après, seulement si l'autre pose des questions.</div>
+      </div>
+      <div class="exercise">
+        <div class="exercise-label situation">Méthode</div>
+        <h3>La règle des 3 phrases</h3>
+        <p>Quand tu veux expliquer quelque chose, limite-toi à <span class="highlight">3 phrases maximum</span> avant de faire une pause ou de laisser l'autre réagir.</p>
+        <div class="how"><strong>Pourquoi 3 :</strong> c'est assez pour dire l'essentiel. C'est pas assez pour se perdre. Après 3 phrases, tu te tais et tu attends. Si l'autre veut des détails, il demandera. Et là tu les donnes.</div>
+      </div>
+      <div class="exercise">
+        <div class="exercise-label daily">Tous les jours</div>
+        <h3>Le résumé du soir</h3>
+        <p>Chaque soir, résume ta journée en <span class="highlight">3 phrases</span>. À voix haute. Pas dans ta tête — à voix haute.</p>
+        <div class="how"><strong>Ça entraîne quoi :</strong> ton cerveau à trier l'essentiel du détail. À prioriser. À faire court. Tu fais ça tous les soirs pendant 3 semaines, et ton cerveau commence à structurer automatiquement quand tu parles.</div>
+        <div class="duration">⏱ 2 minutes</div>
+      </div>
+      <div class="exercise">
+        <div class="exercise-label situation">En conversation</div>
+        <h3>Le signal "détail"</h3>
+        <p>Quand tu sens que tu pars dans un détail, dis simplement :</p>
+        <div class="example"><div class="good">"Bref, en gros…" puis reviens à l'idée principale.</div></div>
+        <p>C'est pas un aveu de faiblesse. C'est ce que font les gens qui communiquent bien. Ils se recadrent en temps réel.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CENSURE ==================== -->
+  <section class="block" id="censure">
+    <div class="block-header">
+      <div class="block-number">Bloc 3</div>
+      <div class="block-title">Arrêter de se censurer</div>
+      <div class="block-why">Retrouver la parole directe sans avoir peur de ce qu'on va dire.</div>
+    </div>
+    <div class="block-content">
+      <div class="exercise">
+        <div class="exercise-label situation">Comprendre</div>
+        <h3>Pourquoi tu te censures</h3>
+        <p>Tu as perdu des amis après avoir été toi-même. Ton cerveau a retenu la leçon : <span class="highlight">"parler franchement = danger = perte"</span>. Donc il filtre tout. C'est un mécanisme de protection. Logique, mais il te bloque.</p>
+        <div class="how"><strong>La vérité :</strong> tu as pas perdu ces amis parce que t'étais trop franc. Tu les as perdus parce qu'il y avait un problème de fond. La franchise t'a juste évité de perdre 5 ans de plus avec les mauvaises personnes.</div>
+      </div>
+      <div class="exercise">
+        <div class="exercise-label situation">Méthode</div>
+        <h3>La règle des 70%</h3>
+        <p>Tu cherches la phrase parfaite avant de parler. Résultat : tu dis rien, ou tu bafouilles.</p>
+        <div class="how"><strong>Nouvelle règle :</strong> si ce que tu veux dire est correct à 70%, dis-le. Pas besoin de 100%. Personne parle à 100%. Les gens qui ont l'air fluides disent des trucs imparfaits avec assurance. C'est l'assurance qui fait la différence, pas la perfection du mot.</div>
+      </div>
+      <div class="exercise">
+        <div class="exercise-label daily">Tous les jours</div>
+        <h3>Un avis par jour</h3>
+        <p>Une fois par jour, donne ton avis sur quelque chose. N'importe quoi. À quelqu'un, en ligne, peu importe. Un avis sincère.</p>
+        <div class="example">
+          <div class="example-label">Exemples</div>
+          <div class="good">"Ce plat est trop salé."</div>
+          <div class="good">"J'ai pas aimé ce film."</div>
+          <div class="good">"Je suis pas d'accord avec toi sur ça."</div>
+        </div>
+        <div class="how"><strong>Le but :</strong> réhabituer ton cerveau à l'idée que donner son avis ne provoque pas de catastrophe. Tu commences petit (un avis sur un plat) et tu montes progressivement (un désaccord avec quelqu'un).</div>
+      </div>
+      <div class="exercise">
+        <div class="exercise-label situation">En conversation</div>
+        <h3>Quand tu bloques</h3>
+        <p>Tu sens que tu cherches tes mots, que ça sort pas :</p>
+        <div class="method-box">
+          <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Dis-le.</strong> "Attends, je cherche comment formuler ça."</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Respire.</strong> Une inspiration.</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Dis la version simple.</strong> Pas la version parfaite. La version honnête.</div></div>
+        </div>
+        <p>Le silence te fait peur. Mais en réalité, 3 secondes de silence c'est rien pour l'autre. C'est une éternité seulement dans ta tête.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PLANNING ==================== -->
+  <section class="block" id="planning">
+    <div class="block-header">
+      <div class="block-number">Le plan</div>
+      <div class="block-title">Semaine par semaine</div>
+      <div class="block-why">Adapté à ta fatigue. Pas d'héroïsme.</div>
+    </div>
+    <div class="block-content">
+      <div class="planning">
+        <div class="week">
+          <div class="week-title">Semaines 1-2 : les bases</div>
+          <div class="week-content">
+            <p>→ Virelangues + lecture à voix haute (10 min/jour)</p>
+            <p>→ Entraînement micro (section Pratique)</p>
+            <p>→ Résumé du soir en 3 phrases</p>
+            <p>→ Respiration avant chaque appel</p>
+            <p>→ 1 avis par jour (même petit)</p>
+          </div>
+        </div>
+        <div class="week">
+          <div class="week-title">Semaines 3-4 : en situation</div>
+          <div class="week-content">
+            <p>→ Continue les bases</p>
+            <p>→ Applique la règle du titre en conversation</p>
+            <p>→ Applique la règle des 3 phrases</p>
+            <p>→ Enregistre-toi 1 fois par semaine, réécoute</p>
+            <p>→ Monte le niveau des avis (vrais désaccords)</p>
+          </div>
+        </div>
+        <div class="week">
+          <div class="week-title">Semaines 5-6 : consolidation</div>
+          <div class="week-content">
+            <p>→ Les exercices deviennent des réflexes</p>
+            <p>→ Compare tes enregistrements semaine 1 vs semaine 5</p>
+            <p>→ Teste en situation plus exposée (nouveau contact, appel important)</p>
+            <p>→ Fais le point : qu'est-ce qui a bougé ?</p>
+          </div>
+        </div>
+        <div class="week">
+          <div class="week-title">Les jours de fatigue</div>
+          <div class="week-content">
+            <p>→ Minimum vital : juste la lecture à voix haute, 5 min</p>
+            <p>→ Si même ça c'est trop : la respiration seule</p>
+            <p>→ <strong>Ne culpabilise pas.</strong> Un jour sans c'est pas un échec. Deux semaines sans, c'est un signal.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <p>C'est pas un sprint. C'est un entraînement.<br>
+    <strong>10 minutes par jour</strong> suffisent.<br>
+    Et les jours où t'as la flemme, fais-en 5.<br>
+    L'important c'est de pas lâcher.</p>
+  </div>
+
+</div>
+
+<script>
+const P={
+  easy:[
+    {t:"Panier piano panier piano",c:"Virelangue"},
+    {t:"Cinq chiens chassent six chats",c:"Virelangue"},
+    {t:"Trois tortues trottaient sur un trottoir très étroit",c:"Virelangue"},
+    {t:"Tonton ton thé t'a-t-il ôté ta toux",c:"Virelangue"},
+    {t:"Je veux et j'exige du jasmin et des jonquilles",c:"Diction"},
+    {t:"Les bons bains bouillants baignent bien",c:"Virelangue"},
+    {t:"Six sous ces saucissons ci sont six sous",c:"Virelangue"},
+    {t:"Papa boit dans les pins papa peint dans les bois",c:"Virelangue"},
+  ],
+  medium:[
+    {t:"Les chaussettes de l'archiduchesse sont-elles sèches archi-sèches",c:"Virelangue"},
+    {t:"Un chasseur sachant chasser sait chasser sans son chien de chasse",c:"Virelangue"},
+    {t:"Didon dîna dit-on du dos d'un dodu dindon",c:"Virelangue"},
+    {t:"Si six scies scient six cyprès six cent six scies scient six cent six cyprès",c:"Virelangue"},
+    {t:"Je suis ce que je suis et si je suis ce que je suis qu'est-ce que je suis",c:"Virelangue"},
+    {t:"Poisson sans boisson est poison",c:"Virelangue"},
+    {t:"La roue sur la rue roule la rue sous la roue reste",c:"Virelangue"},
+    {t:"Fruits frais fruits frits fruits cuits fruits crus",c:"Diction"},
+  ],
+  hard:[
+    {t:"Un généreux déjeuner régénérerait des généraux dégénérés",c:"Virelangue"},
+    {t:"Combien coûtent ces six saucissons-ci et ces six saucissons-là",c:"Virelangue"},
+    {t:"Je veux et j'exige d'exquises excuses du juge du plus pur abus de ce judicieux juge d'instruction",c:"Diction"},
+    {t:"Tas de riz tas de rats tas de riz tentant tas de rats tentés",c:"Virelangue"},
+    {t:"La cavale du valet avala l'ovale de la cave au val",c:"Virelangue"},
+    {t:"Seize jacinthes sèchent dans seize sachets secs",c:"Virelangue"},
+    {t:"Ces cerises sont si sûres qu'on ne sait pas si c'en sont",c:"Virelangue"},
+    {t:"Natacha n'attacha pas son chat Pacha qui s'échappa",c:"Virelangue"},
+  ]
+};
+
+let df='easy',ix=0,rc=false,rg=null,st=null,sc=[];
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+
+function trInit(){
+  if(!SR){trErr("Ton navigateur ne supporte pas la reconnaissance vocale. Utilise Chrome ou Safari.");document.getElementById('trMic').style.opacity='0.3';document.getElementById('trMic').style.pointerEvents='none';}
+  trLoad();
+}
+
+function trErr(m){const e=document.getElementById('trErr');e.textContent=m;e.classList.add('v');setTimeout(()=>e.classList.remove('v'),5000);}
+
+function setDiff(l,b){df=l;ix=0;sc=[];trUpSt();document.querySelectorAll('.tr-diff button').forEach(x=>x.classList.remove('active'));b.classList.add('active');trHide();trLoad();}
+
+function trLoad(){const list=P[df],p=list[ix];document.getElementById('trPhr').textContent=p.t;document.getElementById('trCat').textContent=p.c;document.getElementById('trCnt').textContent=`${ix+1} / ${list.length}`;trHide();}
+
+function trHide(){document.getElementById('trRes').classList.remove('v');document.getElementById('trSpd').classList.remove('v');document.getElementById('trMicLbl').textContent='Appuie pour commencer';}
+
+function trToggle(){rc?trStop():trStart();}
+
+function trStart(){
+  if(!SR)return;
+  rg=new SR();rg.lang='fr-FR';rg.continuous=false;rg.interimResults=false;rg.maxAlternatives=1;
+  rg.onstart=()=>{rc=true;st=Date.now();document.getElementById('trMic').classList.add('rec');document.getElementById('trMicLbl').textContent='Écoute en cours…';trHide();};
+  rg.onresult=(e)=>{const t=e.results[0][0].transcript,d=(Date.now()-st)/1000;trProc(t,d);};
+  rg.onerror=(e)=>{rc=false;document.getElementById('trMic').classList.remove('rec');
+    if(e.error==='no-speech')document.getElementById('trMicLbl').textContent="J'ai rien entendu. Réessaie.";
+    else if(e.error==='not-allowed'){trErr("Autorise l'accès au micro dans les paramètres.");document.getElementById('trMicLbl').textContent="Micro bloqué";}
+    else document.getElementById('trMicLbl').textContent="Erreur. Réessaie.";};
+  rg.onend=()=>{rc=false;document.getElementById('trMic').classList.remove('rec');};
+  try{rg.start();}catch(e){trErr("Impossible de démarrer le micro.");}
+}
+
+function trStop(){if(rg)rg.stop();}
+
+function norm(t){return t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z\s]/g,'').replace(/\s+/g,' ').trim();}
+
+function trProc(transcript,duration){
+  const orig=P[df][ix].t,oW=norm(orig).split(' '),sW=norm(transcript).split(' '),oD=orig.split(/\s+/);
+  let m=[],c=0,si=0;
+  for(let i=0;i<oW.length;i++){
+    let f=false;
+    if(si<sW.length&&oW[i]===sW[si]){m.push({w:oD[i]||oW[i],s:1});c++;si++;f=true;}
+    else{for(let j=Math.max(0,si-1);j<Math.min(sW.length,si+3);j++){if(oW[i]===sW[j]){m.push({w:oD[i]||oW[i],s:1});c++;si=j+1;f=true;break;}}}
+    if(!f){m.push({w:oD[i]||oW[i],s:0});si++;}
+  }
+  const score=Math.round((c/oW.length)*100);
+  document.getElementById('trResTxt').innerHTML=m.map(x=>x.s?`<span class="wok">${x.w}</span>`:`<span class="wko">${x.w}</span>`).join(' ');
+  const sd=document.getElementById('trSc');sd.textContent=score+'%';sd.className='tr-sc '+(score>=80?'g':score>=50?'o':'b');
+
+  const wpm=Math.round((oW.length/duration)*60);
+  document.getElementById('trSpd').classList.add('v');
+  const sf=document.getElementById('trSpdF'),sl=document.getElementById('trSpdL');
+  let sp,sco,stx;
+  if(wpm<100){sp=30;sco='#6b9dc9';stx='Rythme lent — bien pour articuler';}
+  else if(wpm<150){sp=55;sco='#8bc96b';stx='Bon rythme — continue comme ça';}
+  else if(wpm<200){sp=75;sco='#c9956b';stx='Un peu rapide — ralentis légèrement';}
+  else{sp=95;sco='#c96b6b';stx='Trop rapide — prends ton temps';}
+  sf.style.width=sp+'%';sf.style.background=sco;sl.textContent=stx;
+
+  const tip=document.getElementById('trResTip');
+  if(score===100)tip.textContent="Parfait. Essaie maintenant plus vite, ou passe au niveau suivant.";
+  else if(score>=80)tip.textContent="Bien. Les mots en rouge sont ceux que le micro n'a pas captés. Exagère l'articulation sur ceux-là.";
+  else if(score>=50)tip.textContent="Moyen. Ralentis. Dis chaque mot séparément d'abord, puis enchaîne progressivement.";
+  else tip.textContent="Pas grave. Commence très lentement, mot par mot. La vitesse viendra après la clarté.";
+
+  document.getElementById('trRes').classList.add('v');
+  document.getElementById('trMicLbl').textContent='Appuie pour réessayer';
+  sc.push(score);trUpSt();
+}
+
+function trUpSt(){
+  document.getElementById('tsN').textContent=sc.length;
+  if(sc.length>0){document.getElementById('tsA').textContent=Math.round(sc.reduce((a,b)=>a+b,0)/sc.length)+'%';document.getElementById('tsB').textContent=Math.max(...sc)+'%';}
+  else{document.getElementById('tsA').textContent='—';document.getElementById('tsB').textContent='—';}
+}
+
+function trRetry(){trHide();}
+function trNext(){const l=P[df];ix=(ix+1)%l.length;trLoad();}
+
+trInit();
+</script>
+
+<!-- Enregistrement du Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js').then(registration => {
+    console.log('Service Worker enregistré avec succès:', registration);
+  }).catch(error => {
+    console.log('Erreur lors de l\'enregistrement du Service Worker:', error);
+  });
+}
+</script>
+
+</body>
+</html>
