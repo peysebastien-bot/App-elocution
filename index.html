@@ -498,7 +498,7 @@ function trToggle(){rc?trStop():trStart();}
 
 function trStart(){
   if(!SR)return;
-  rg=new SR();rg.lang='fr-FR';rg.continuous=false;rg.interimResults=false;rg.maxAlternatives=1;
+  rg=new SR();rg.lang='fr-FR';rg.continuous=false;rg.interimResults=true;rg.maxAlternatives=3;
   rg.onstart=()=>{rc=true;st=Date.now();document.getElementById('trMic').classList.add('rec');document.getElementById('trMicLbl').textContent='Écoute en cours…';trHide();};
   rg.onresult=(e)=>{const t=e.results[0][0].transcript,d=(Date.now()-st)/1000;trProc(t,d);};
   rg.onerror=(e)=>{rc=false;document.getElementById('trMic').classList.remove('rec');
@@ -511,15 +511,37 @@ function trStart(){
 
 function trStop(){if(rg)rg.stop();}
 
-function norm(t){return t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z\s]/g,'').replace(/\s+/g,' ').trim();}
+function norm(t){return t.toLowerCase().replace(/[éèêë]/g,'e').replace(/[àâä]/g,'a').replace(/[îï]/g,'i').replace(/[ôö]/g,'o').replace(/[ûü]/g,'u').replace(/[ç]/g,'c').replace(/[^a-z\s]/g,'').replace(/\s+/g,' ').trim();}
+
+function levenshtein(s1,s2){
+  const m=s1.length,n=s2.length,d=Array(m+1).fill(null).map(()=>Array(n+1).fill(0));
+  for(let i=0;i<=m;i++)d[i][0]=i;
+  for(let j=0;j<=n;j++)d[0][j]=j;
+  for(let i=1;i<=m;i++){
+    for(let j=1;j<=n;j++){
+      const cost=s1[i-1]===s2[j-1]?0:1;
+      d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+cost);
+    }
+  }
+  return d[m][n];
+}
+
+function similarity(s1,s2){
+  const maxLen=Math.max(s1.length,s2.length);
+  if(maxLen===0)return 1;
+  return 1-(levenshtein(s1,s2)/maxLen);
+}
 
 function trProc(transcript,duration){
   const orig=P[df][ix].t,oW=norm(orig).split(' '),sW=norm(transcript).split(' '),oD=orig.split(/\s+/);
   let m=[],c=0,si=0;
   for(let i=0;i<oW.length;i++){
-    let f=false;
-    if(si<sW.length&&oW[i]===sW[si]){m.push({w:oD[i]||oW[i],s:1});c++;si++;f=true;}
-    else{for(let j=Math.max(0,si-1);j<Math.min(sW.length,si+3);j++){if(oW[i]===sW[j]){m.push({w:oD[i]||oW[i],s:1});c++;si=j+1;f=true;break;}}}
+    let f=false,bestMatch=-1,bestSim=0;
+    for(let j=Math.max(0,si-1);j<Math.min(sW.length,si+4);j++){
+      const sim=similarity(oW[i],sW[j]);
+      if(sim>bestSim){bestSim=sim;bestMatch=j;}
+    }
+    if(bestSim>=0.75){m.push({w:oD[i]||oW[i],s:1});c++;si=Math.max(si,bestMatch+1);f=true;}
     if(!f){m.push({w:oD[i]||oW[i],s:0});si++;}
   }
   const score=Math.round((c/oW.length)*100);
